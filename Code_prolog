@@ -1,0 +1,284 @@
+% Prédicats de contrôles et utilitaires
+
+% Gestion de l'interaction utilisateur 
+
+% Première sous-partie répondant aux requêtes de l'utilisateur exprimées par le mot clé "pourquoi" à chaque étape de l'interaction principale du programme.
+
+% Gestion de l'entrée du mot clé "pourquoi" par l'utilisateur pour les coûts totaux de la forme 1 et 2
+test_pourquoi_CT_1(E,Phrase,1) :- (Phrase == pourquoi -> write("car vous avez indiqué que la foncton de coût total de la firme dominante est de la forme ") , write(1), writeln(" et nous avons besoin de la valeur de a pour pouvoir créer la fonction au format [oppérateur,opperande,opperande], afin  de pouvoir réaliser nos calculs "),writeln("Entrer ici la valeur de a, qui est un réel non nul : "),
+    read(E),test_exit(E),test_pourquoi(E),!, test_nombre(E)
+; fail).
+
+test_pourquoi_CT_2(AF,Phrase,2,Valeur):- (Phrase == pourquoi -> write("car vous avez indiqué que la fonction de coût total de la firme dominante est de la forme ") , write(2), writeln(" et nous avons besoin des valeurs de a et de b pour pouvoir créer la fonction au format [oppérateur,opperande,opperande], afin  de pouvoir réaliser nos calculs "),write("Entrer ici la valeur de "),writeln(Valeur),
+    read(AF),test_exit(AF),test_pourquoi(AF),!,test_nombre(AF)
+; fail).
+
+% Gestion de l'entrée du mot clé "pourquoi" par l'utilisateur pour comprendre la forme du coût total
+test_pourquoi_CTM(Valeur, Entree) :- (Entree == pourquoi -> 
+                                     write("Pour que notre programme puisse effectuer des calculs de manière correcte, il est impératif que la fonction soit de forme polynomiale de degré 1 ou 2. Malheureusement, nous n'avons pas encore réussi à étendre nos fonctionalités au-delà d'un polynôme du second degré.") , 
+                                     write("Ainsi, souhaitez vous travailler avec la forme 1 ou 2, pour rappel : "),
+                                         writeln("1 : CTM = a"),
+                                         writeln("2 : CTM = a x q + b"),
+                                         writeln("a et b peuvent prendre la valeur 0"), 
+                                     read(Valeur),test_pourquoi(Valeur); fail).
+
+
+% Gestion de l'entrée du mot clé "pourquoi" par l'utilisateur pour la fonction de demande du monopole
+test_pourquoi_PQ(Valeur,Entree,Retour) :- (Entree == pourquoi -> write("Pour que notre programme puisse étudier une fonction de demande, celle-ci doit être de la forme a × q + b. Malheureusement, nous ne prenons pas en charge les formes plus complexes pour le moment. Nous avons besoin des valeurs de aa (représentant le consentement maximal à payer des consommateurs) et de bb (qui indique la taille du marché) pour pouvoir créer la fonction au format [opérateur, opérande, opérande], ce qui nous permettra d'effectuer les calculs nécessaires. "), write("Entrez la valeur de "),writeln(Valeur),
+                                              read(Retour),test_exit(Retour),test_pourquoi(Retour),!,test_nombre(Retour) ; fail).
+
+% Gestion de l'entrée du mot clé "pourquoi" par l'utilisateur pour la validation de ses entrées
+pourquoi_Validation(P,R) :-  (P == pourquoi -> write("Afin de garantir l'exactitude de vos entrées, veuillez répondre par 'oui' ou 'non' ci-dessous."), read(Valeur),test_pourquoi(R),R=Valeur; R=P).
+
+% Gestion de l'entrée du mot clé "pourquoi" par l'utilisateur pour l'entrée sur la valeur des quantités du monopole
+test_pourquoi_vq(Valeur,Entree,Retour) :- (Entree == pourquoi -> write("Comme vous avez mentionné que la valeur de q est inconnue et doit être calculée, et étant donné que Prolog n'est pas optimisé pour la résolution d'équations, nous devons limiter notre recherche en utilisant la prédicat between. Quelle est la valeur de la borne supérieure que nous devons utiliser pour cette recherche ?"),writeln(Valeur),
+                                              read(Retour),test_exit(Retour),test_pourquoi(Retour),!,test_nombre(Retour) ; fail).
+
+% Gestion de l'entrée du mot clé "pourquoi" par l'utilisateur pour expliquer pourquoi nous demandons si la valeur de q monopole est connue
+test_pourquoi_oui_non_vq(Entree,Retour) :- (Entree == pourquoi -> write("Pour nous aider à déterminer si nous devons calculer q, veuillez indiquer votre réponse par 'oui' ou 'non'"),
+                                              read(Retour),test_exit(Retour),test_pourquoi(Retour); Retour = Entree).
+
+% Seconde sous-patie répodant aux questions plus complexes en fin de programme , fait à partir de la vidéo : https://youtu.be/AOXcDLoCiFI?si=MgqiVi9IXPNe0Q9c :
+
+% Lit une phrase
+lire_phrase(L):- lire(Phrase), name(Phrase,Lphrase),divise(Lphrase,L),!.
+
+% divise une phrase en chaine de caractère dans une liste
+divise(Chaine,[MotL|Liste]) :- append(Mot,[32|Reste],Chaine),
+    name(MotL,Mot),
+    divise(Reste,Liste).
+
+divise(DernierMot,[DernierMotL]):- name(DernierMotL,DernierMot).
+
+% lit une chaine de caractères
+lire(String):- read_line_to_codes(user_input, Codes), string_codes(String, Codes).
+
+% Ecrit une chaine de caractères à partir d'une liste
+ecrire([]) :- nl.
+ecrire([X|L]) :- write(X), write(" "), ecrire(L).
+
+
+% Réponses pour la firme entrante:
+reponse([quelle,est,la,demande,de,la,firme,entrante|_],[la,demande,de,la,firme,entrante,est,DR,elle,est,calculée,ici,comme,étant,une,fonction,affine,dont,le,coefficient,directeur,a,vaut,la,valeur,de,celui,de,la,firme,en,monopole,soit,A,et,d,ordonnee,à,l,origine,PM,elle,represente,la,demande,qui,reste,sur,le,marche,une,fois,que,le,monopole,ait,ecoule,ses,quantites],_,[+,[*,A,q],_],_,DR,PM,_,_,_,_,_,_).
+reponse([quelle,est,la,quantite,que,produit,l,entrant|_],[l,entrant,produit,QE,qui,a,ete,calcule,en,egalisant,sa,recette,marginale,-,derivee,de,sa,recette,totale,qui,est,le,produit,entre,la,demande,restante,et,q,-,a,son,cout,fixe,que,vous,avez,fournit,au,debut],_,_,_,_,_,_,_,_,QE,_,_).
+reponse([pourquoi,le,profit,de,la,firme,entrante,est,X|_],[le,profit,de,la,firme,entrante,est,X,car,il,est,egale,au,prix,calcule,par,le,monopole,pour,QE,+,QM,fois,QE,moins,le,cout,fixe,que,vous,aviez,rentré,cf],_,_,_,_,_,_,_,_,QE,_,QM).
+
+% Réponses pour la  firme dominante:
+reponse([quel,est,le,cout,total,du,monopole|_], [le,cout,total,du,monopole,et,A,x,q,+,B,car,vous,nous,avez,donne,ces,valeurs],[+,[*,A,q],B],_,_,_,_,_,_,_,_,_,_).
+reponse([quel,est,le,cout,total,du,monopole|_], [le,cout,total,du,monopole,et,A,car,vous,nous,avez,donne,ces,valeurs],A,_,_,_,_,_,_,_,_,_,_).
+
+reponse([quel,prix,maximise,le,profit,du,monopole|_],[le,prix,est,PM,calcule,en,egalisant,RmM,à,Cm,à,partir,de,CT,et,de,RT,q,on,a,derive],CT,_,_,_,PM,RT,RmM,Cm,_,_,_).
+
+% Réponses en plus:
+reponse([pourquoi,avez,vous,choisi,ce,sujet|_],[car,c,est,un,projet,qui,est,en,phase,avec,notre,parcours,eco,et,qu,on,voulait,faire,un,travail,nous,permettant,a,la,fois,d,apprendre,prolog,et,de,revoir,nos,cours,de,microeconomie],_,_,_,_,_,_,_,_,_,_,_).
+reponse([combien,de,temps,vous,avez,mis,pour,le,projet|_],[80,h,environs],_,_,_,_,_,_,_,_,_,_,_).
+reponse(_,[desolé,je,n,est,pas,compris,votre,entree,pouvez,vous,reformuler,en,utilisant,la,forme,définie,dans,le,rapport,?],_,_,_,_,_,_,_,_,_,_,_).
+
+% permet de lancer le programme de réponses
+reponse([exit],_,_,_,_,_,_,_,_,_,_,_,_):- test_exit(exit) .
+%repondre(P,_) :- lire_phrase(P), question(_,_).
+repondre(CT,PQ,PiM,DR,PM,RTM,RmM,Cm,QE,PE,QM):- lire_phrase(P), question(P,CT,PQ,PiM,DR,PM,RTM,RmM,Cm,QE,PE,QM).
+
+% gère la lecture et la réponse aux questions
+question([exit],_,_,_,_,_,_,_,_,_,_,_):- writeln("merci et à bientôt !"),test_exit(exit).
+
+%question(Liste_M,R):- reponse(Liste_M,R),
+ %   ecrire(R),
+  %  lire_phrase(P),
+   % question(P,R).
+
+question(Liste_M,CT,PQ,PiM,DR,PM,RTM,RmM,Cm,QE,PE,QM):- 
+    reponse(Liste_M,R,CT,PQ,PiM,DR,PM,RTM,RmM,Cm,QE,PE,QM),
+    ecrire(R),
+    lire_phrase(P),
+    question(P,CT,PQ,PiM,DR,PM,RTM,RmM,Cm,QE,PE,QM).
+
+
+% Gestion des erreurs d'entrées utilisateurs
+
+% Gestion de la sortie du programme à la demande de l'utilisateur 
+test_exit(T) :- T == exit -> !, throw("Il semble qu'il n'y a pas d'erreur. Vous avez demandé au programme de s'arrêter. Pour le relancer, veuillez exécuter la fonction main.") ; true.
+
+% Vérifie et gère une entrée qui devrait être un chiffre mais qui ne l'est pas
+test_nombre(X) :- not(number(X)) -> !, throw( "Il semble qu'une erreur se soit produite car vous avez entré une valeur non numérique. Veuillez relancer le programme avec 'main'.") ; true.
+
+% Vérifie si une valeur vaut 0 alors qu'elle ne devrait pas
+test_0(X) :-  X == 0 ->  !, throw("Il est important de noter qu'on ne peut pas diviser par zéro. Dans ces circonstances, le programme ne peut malheureusement pas continuer à fonctionner. Il faut le relancer avec 'main'") ; true.
+
+% Vérifie si une des entrée est 'pourquoi' dans un prédicat de gestion du mot clé pourquoi
+test_pourquoi(P) :- P == pourquoi ->  !, throw("Nous aimerions répondre une seconde fois à votre question 'pourquoi', mais malheureusement nous n'en sommes pas encore capables (on espère remplacer Chat GPT un jour, mais il y a encore du chemin). Veuillez relancer le programme avec 'main'. Désolé pour cela ! ") ; true.
+
+
+% Programme principal
+
+% Gère la récupération de CT de forme 1
+recuper_CT(CT, 1) :- !,
+    writeln("Vous avez indiqué que CT = a. Quelle est la valeur de a ?"),
+    read(E),
+    test_exit(E),!,(test_pourquoi_CT_1(CT,E,1);!, test_nombre(E),CT = E).
+
+% Gère la récupération de CT de forme 2
+recuper_CT(CT, 2) :-
+    writeln("Vous avez indiqué que CT=a × q + b. Quelle est la valeur de a ?"),
+    read(AT), test_exit(AT),test_0(AT),(test_pourquoi_CT_2(A,AT,2,a), ATT = A ; !, test_nombre(AT), ATT=AT),
+    writeln("Et la valeur de b ? "),
+    read(BT),test_exit(BT), (test_pourquoi_CT_2(B,BT,2,b), BTT = B; test_nombre(BT), BTT=BT),
+    CT = [+,[*,ATT,q],BTT].
+
+
+% Gère la récupération de la fonction de demande (PQ)
+recuper_PQ(PQ) :-
+    writeln("La fonction de demande du monopole est de la forme a × q + b, où b peut prendre la valeur 0. Pouvez-vous me fournir la valeur de a (non nulle) pour cette fonction ? "),
+    read(A),
+    test_exit(A), test_0(A),(test_pourquoi_PQ(a,A,AT), ATT = AT ; !, test_nombre(A), ATT=A),
+    writeln("Et la valeur de b ? "),
+    read(B), (test_pourquoi_PQ(b,B,BT), BTT = BT ; !, test_nombre(B), BTT=B),
+    test_exit(B),
+    PQ = [+,[*,ATT,q],BTT].
+
+% Fonction principale de récupération des données du coût total (CT), de la demande (PQ) et des coûts fixes (CF)
+recuper_donne(CT, PQ, CFF) :- 
+    writeln("Quelle est la forme de la fonction de coût total (CT) de la firme dominante parmi : "),
+    writeln("1 : CT = a"),
+    writeln("2 : CT = a x q + b"),
+    writeln("a et b peuvent prendre la valeur 0"),
+    read(Forme),test_exit(Forme),
+    (test_pourquoi_CTM(Forme2,Forme); !, test_nombre(Forme),Forme2=Forme), (   not(between(1,2,Forme2)) ->  throw("Vous avez saisi une valeur qui n'est pas dans l'intervalle [1,2]. Veuillez relancer le programme en utilisant la commande main."); true),
+    
+        % Appel à recuper_CT en fonction de la Forme sélectionnée
+        recuper_CT(CT, Forme2),
+    
+    % Récupération de la fonction de demande (PQ)
+    recuper_PQ(PQ),
+    
+    % Récupération du coût fixe de la firme entrante (CF)
+    writeln("Pouvez-vous me donner le coût fixe de la firme entrante (CF) ?"),
+    read(CF),test_exit(CF),
+    (test_pourquoi_PQ(c,CF,CFF); !, test_nombre(CF),CFF=CF),
+    
+    % Vérification et validation des entrées par l'utilisateur
+    write("La firme dominante a : "), transforme(CT), write(" comme fonction de coût total et "), transforme(PQ), writeln(" comme fonction de demande. "),
+    write("La firme entrante supporte des coûts à hauteur de : "), writeln(CFF),
+    writeln("Validez-vous ces données ? (oui, non)"),
+    read(Validation),
+    test_exit(Validation), pourquoi_Validation(Validation,V2),
+    (V2 = non, recuper_donne(_, _, _); V2 = oui, !; throw("Une erreur inattendue est survenue dans votre entrée. Veuillez relancer le programme avec 'main'.")).
+
+% Explications et crédits du programme
+explication :- writeln("Notre programme vise à fournir un outil aux entreprises désireuses de prendre des décisions stratégiques concernant leur entrée sur un marché."), writeln(" "),
+    writeln("Il est à noter que dans le cadre de ce projet, nous avons dû simplifier notre modèle afin de le rendre opérationnel. Pour notre fonction de demande relative à la firme dominante, nous avons supposé que la valeur de a est positive afin de permettre l'entrée d'une nouvelle entreprise. Cependant, cette hypothèse ne tient pas économiquement dans la réalité, car la courbe de demande se caractérise toujours par une décroissance des quantités, ce qui impliquerait que “a” soit négatif. En d'autres termes, notre modélisation (très simplifiée) nous a contraints à utiliser des valeurs pour a qui ne reflètent pas fidèlement la nature économique de la demande dans le modèle microéconomique. En pratique, la nature décroissante de la courbe de demande nécessiterait une révision de cette approche pour mieux correspondre aux conditions réelles du marché et la prise en charge de fonctions quadratiques compliquant le fonctionnement du programme."),writeln(" "),
+    writeln("Mode d’emplois : Vous rentrez “main” et le programme vous guide ensuite."), writeln(" "),
+
+writeln("Attention cependant, les valeurs spéciales comme “%” ne sont pas comprises par le programme tout comme les mots ayant des majuscules."),writeln(" "),
+
+writeln("Dans la première partie du programme, jusqu’à l’interaction “avez vous des questions”, vous pouvez entrer dans la boîte de dialogue “pourquoi” sans le “?” ."),writeln(" "),
+
+writeln("A tout moment dans le programme vous pouvez entrer la commande “exit” pour le quitter."),writeln(" "), 
+
+writeln("Si vous rencontrez des problèmes lors de l'exécution ou constatez des bugs,  nous vous serions reconnaissant de nous en faire part."),writeln(" "), 
+
+writeln("Le programme a quasi entièrement été codé sur https://swish.swi-prolog.org/p/BBlFqAuq.pl , il se peut donc qu’il y ait des soucis à l'exécution sur machine. En tout cas, nous en avons rencontré un récurrent concernant le dépassement de l’espace de stockage alloué, mais nous n’avons pas trouvé son origine. "),writeln(" "),
+    
+    writeln("crédits"),writeln(" "),
+    writeln("Tous droits réservés, programme fait dans le cadre du control continue L2 MAISHS 2023 - 2024"),writeln(" "),
+    writeln("Programme réalisé entièrement par : Rakotozafy - Benabdelaziz - Vander schueren - Spiridon"),writeln(" "),
+    writeln(" relancez le programme avec 'main'").
+    
+
+% Prédicat principal
+
+main :-!, writeln("Bonjour et bienvenue dans notre programme qui vous aidera à déterminer si votre entreprise devrait entrer sur un marché donné. À tout moment, vous pouvez taper 'exit' pour quitter le programme ou faire une erreur pour sortir. Si vous avez besoin d'une explication, tapez 'pourquoi'. Pour en savoir plus sur les simplifications du modèle et les crédits, tapez 'explication'. Pour démarrer le programme, tapez nimporte quelle lettre."),read(S),test_exit(S), S == explication -> explication ;  writeln(" "),
+    % Récupération des données CT, PQ et C
+    recuper_donne(CT, PQ, C),
+    
+    % Calcul du système de l'entreprise dominante PM* et QM*
+    calcul_Cm(CT, Cm), 
+    rtot(PQ, RTM), 
+    calcul_Rm(RTM, RmM), 
+    calcul_QM(RmM, Cm, QM), 
+    calcul_P(PQ, QM, PM), 
+    calcul_pi(PM, QM, CT, PiM), 
+
+    % Calcul du système de l'entreprise entrante
+    calcul_DR(PQ, PM, DR), 
+    calcul_Qe(C, DR, QE), 
+    QT is QE + QM, 
+    calcul_P(DR, QT, PE),
+    calcul_pi(PE, QE, C, PiE),
+
+    % Vérification si la firme entre sur le marché
+    (PiE > 0 ->  
+        write("La firme rentre car le profit "),write(PiE), writeln(" est supérieur à 0")
+    ; 
+        writeln("La firme ne rentre pas car le profit"),write(PiE), writeln(" est inférieur à 0") ),
+    
+    % Vérification des valeurs 
+    writeln("Avez-vous des questions ? (oui, non)"), 
+    read(Rep), 
+    test_exit(Rep),!,
+    (Rep = oui , write("Bien entendu, nous sommes là pour vous aider. Veuillez noter que nous ne sommes malheureusement pas encore au niveau de Chat GPT (mais nous y travaillons), vos questions doivent suivre un format spécifique pour que nous puissions y répondre efficacement, vous la retrouverez sur le rapport. Pensez à ne mettre aucun accent ou caractère spéciaux comme '-'. Si vous avez des doutes ou des incompréhensions, n'hésitez pas à nous contacter."),
+        repondre(CT,PQ,PiM,DR,PM,RTM,RmM,Cm,QE,PE,QM)
+    ; 
+        write("Super ! Tout semble parfait. Merci d'avoir fait appel à nous et à bientôt !")).
+
+% Outils 
+    
+% Définition de l'expression Rm(Q) : 
+calcul_Rm(RT,R_rmarg) :-deriv(RT, R_rmarg),!.%simplifie(Result_rmarg,R_rmarg).
+
+% Définition de l'expression Cm(Q) :
+calcul_Cm(CT, R_cmarg) :-deriv(CT, R_cmarg),!.
+
+% Définition de l'expression RT(Q) = Q * P(Q) :
+rtot([+,[*,A,q],B],R) :- R = [+,[*,A,[*,q,q]],[*,B,q]] .
+
+% Calcul PM :
+calcul_P(PQ,Q, Result_dr) :- remplacer([q,Q],PQ,PQQ), calcul(PQQ,Result_dr).
+
+% Calcul de QM :
+test_b(Rm,Cm,Inf,Sup,Q) :- (   between(Inf,Sup,Q) ,  %on remplace le q inconnu avec le Q trouvé en bas qui réalise l'équation , pour le mettre dans l'équation Rm pour donner RmQ , apres , on calcule RmQ pour donner Rm calculé qui est RmQ
+    remplacer([q,Q],Rm,RmQ), calcul(RmQ,RmC),
+    remplacer([q,Q],Cm,CmQ), calcul(CmQ,CmC),
+    RmC=:= CmC ; throw("Désolé, une erreur inatendue avec les bornes s'est produite, il semble que q n'est pas dans votre intervale, le programme doit être relancé")).
+
+calcul_QM(Rm,Cm,Q) :- 
+        writeln("Connaissez-vous la quantité produite par la firme en monopole ? (oui,non)"), read(Validation),test_exit(Validation),test_pourquoi_oui_non_vq(Validation,V3),
+    (   V3 = non , write("La valeur de la borne inférieur de l'estimation que vous avez pour la production de la firme en monopole : "), 
+    read(Inf),(test_pourquoi_vq(inférieur,Inf,I) ; !, test_nombre(Inf), I=Inf), write(" et la valeur de la borne supérieure : "), read(Sup), (test_pourquoi_vq(supérieure,Sup,S) ; !, test_nombre(Sup), S=Sup),
+    test_b(Rm,Cm,I,S,Q);V3=oui, write("Entrez la valeur de q ici : ") , read(Q), test_exit(Q), test_nombre(Q) ; throw("Une erreur inconue s'est produite")).
+
+% Calculer le profit :
+calcul_pi(P,Q,CT,Pi) :- remplacer([q,Q],CT,CTQ), calcul(CTQ,Cout), PQ is P*Q, Pi is PQ - Cout.
+
+% Calcul la demande restante :
+calcul_DR([+,[*,A,q],_] , PM , DR) :- DR = [+, [*,A,q], PM].
+
+% Calcul la valeur de la quantité pour la firme entrante
+calcul_Qe(C, [+, [*,A,q], PM],Result_Qe) :-  calcul([/,[-,C,PM], [*, 2, A]],Result_Qe).
+
+% Permet de dériver une fonction
+deriv(C1,R):-number(C1),R=0,!.
+deriv(q,R):-not(number(q)),R=1.
+deriv([Op,N1,N2],R):-member(Op,[+,-]), deriv(N1,R1),deriv(N2,R2),R=[Op,R1,R2].
+deriv([Op,N1,N2],R):-member(Op,[*]), deriv(N1,R1),deriv(N2,R2),R=[+,[*,R1,R2],[*,N1,R2]].
+deriv([Op,N1,N2],R):-member(Op,[/]), deriv(N1,R1),deriv(N2,R2),R=[/,[-,[*,R1,N2],[*,N1,R2]],[*,N2,N2]].
+
+% remplace la variable X dans l'équation donnée sous forme de liste
+remplacer([A,B],X,R) :- not(is_list(X)),(X == A -> R is B ; R is X) .
+remplacer(A,[X,Y,Z],[X,T1,T2]) :- remplacer(A,Y,T1),remplacer(A,Z,T2) .
+
+% Permet de calculer une expression
+calcul(N,N):-number(N).
+calcul([+,A,B],R):-calcul(A,RA),calcul(B,RB),R is RA+RB.
+calcul([-,A,B],R):-calcul(A,RA),calcul(B,RB),R is RA-RB.
+calcul([*,A,B],R):-calcul(A,RA),calcul(B,RB),R is RA*RB.
+calcul([/,A,B],R):-calcul(A,RA),calcul(B,RB),R is RA/RB.
+
+% Fonction pour passer de la forme péfixée à infixée
+transforme([Op, A,B]):- operator(Op), !, write('('), transforme(A), write(' '), write(Op), write(' '), transforme(B), write(')').
+transforme(X) :- number(X), !, write(X).
+transforme(X) :- atom(X), !, write(X).
+operator(+).
+operator(-).
+operator(*).
+operator(/).
